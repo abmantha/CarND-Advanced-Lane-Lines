@@ -133,7 +133,7 @@ Once I calculate these values, I then display them on directly onto the video.
 
 I implemented this in the function called single_image_convolution_search() in the cell "5. Lane Finding: Sliding Window Search w/ Convolutions" on line 44. 
 
-![alt text][image8]
+![alt text][image7]
 
 ---
 
