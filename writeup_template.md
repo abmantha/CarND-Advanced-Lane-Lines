@@ -25,8 +25,7 @@ The goals / steps of this project are the following:
 [image4]: ./output_images/example_undistorted_warped_test_images.png
 [image5]: ./output_images/example_undistorted_warped_test_image_single.png
 [image6]: ./output_images/test_image_0_detected_lanes.png
-[image7]: ./output_images/test_image_0_detected_lanes.png
-[image8]: ./output_images/detected_lanes.png
+[image7]: ./output_images/detected_lanes.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -129,8 +128,6 @@ To calculate radius of curvature, I simply transformed the converted left and ri
 To calculate distance from center, I simply took the difference of the center of the image and the difference of both left and right polynomial fits. Finally, I converted this difference from pixels to meters using the same x_meters_per_pixel constant above. 
 
 Once I calculate these values, I then display them on directly onto the video. 
-
-![alt text][image7]
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
