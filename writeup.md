@@ -77,7 +77,20 @@ Please note that I conduct thresholds on images that have been transformed via p
 
 In the code cell, "3. Perspective Transform," I have a method called warp() which takes in an image, source and destination arrays. The given input will undergo a perspective transform, transforming images in a source region to a new destination region. It will return the warped image, a matrix M that is responsible for the transformation from source to destination, and an inverse matrix Minv that is responsible for the transformation from destination to source. 
 
-The thresholds that I apply consist of a color threshold combination of HLS and HSV combined with an x-oriented gradient threshold. This threshold combination does a good job of picking up both yellow and white lines. 
+UPDATE: The thresholds that I apply consist of a color threshold combination of LAB and LUV binary color thresholds combined with an x-oriented gradient threshold. This threshold combination does a good job of picking up both yellow and white lines. 
+
+These are the specific channels and parameters I used: 
+ ```python
+    lab_binary_threshold = binary_color_threshold(image, cv2.COLOR_RGB2Lab, 2, (145, 255))
+    luv_binary_threshold = binary_color_threshold(image, cv2.COLOR_RGB2Luv, 0, (207, 255))    
+    sobel_binary_x = abs_sobel_threshold(image, 'x', 3, (20, 100))
+
+    combined_color_binary = cv2.bitwise_or(lab_binary_threshold, luv_binary_threshold)
+    combined_binary = np.zeros_like(sobel_binary_x)
+    combined_binary[(sobel_binary_x == 1) | (combined_color_binary == 1)] = 1
+ ```
+ 
+The B channel of LAB does a great job identifying yellow lines. The L channel of LUV does a decent job identifying white lines. Thresholding with an x-oriented gradient allowed me to add in additionally identified white, right line points that made it possible to easily detect centroid values.
 
 In the next code cell, "Identify source and destination points on test images," I explore different source and destination points that will generate the right transform that I'm looking for to capture lane lines as close to parallel as possible in a bird's-eye view. Here are all 6 test images after being transformed. 
 
@@ -86,20 +99,22 @@ In the next code cell, "Identify source and destination points on test images," 
 I hardcoded the source and destination points, and came upon my final choice via trial and error. Below is the snippet of code that I used to select both source and destination points. 
 
 ```python
-src = np.float32([(590,450), (720,450), (200,720), (1050,720)])
-dest = np.float32([(300,0), (900,0), (300,720), (900,720)])
+src = np.float32([(545,470), (740,470), (200,680), (1050,680)])
+dest = np.float32([(250,0), (900,0), (900,0), (900,720)])
 ```
 
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 590, 450      | 300, 0        | 
-| 720, 450      | 900, 0        |
-| 200, 720      | 300, 720      |
-| 1050, 720     | 960, 7200     |
+| 545, 470      | 250, 0        | 
+| 740, 470      | 900, 0        |
+| 200, 680      | 900, 0        |
+| 1050, 680     | 900, 720      |
 
-I verified that my perspective transform was working as expected by drawing 4 green dots on the regions of interest. The 4 dots (green, blue, orange and red) allow me to easily check that the endpoints of the region of interest (source) get appropriately mapped to the region that I want (destination).
+I verified that my perspective transform was working as expected by drawing 4 green dots on the regions of interest. The 4 dots (green, blue, orange and red) allow me to easily check that the endpoints of the region of interest (source) get appropriately mapped to the region that I want (destination). (Please note: dots were removed for submission).
+
+For my second submission, identifying the correct source and destinations significantly improved my pipeline's performance. One of the issues with my previous submission was that the warped images did not have parallel lane lines which resulted in not enough line segments to be detected. This issue is now resolved.
 
 ![alt text][image5]
 
@@ -137,6 +152,8 @@ I implemented this in the function called single_image_convolution_search() in t
 
 Here's a [link to my video result](./project_video_with_lanes.mp4)
 
+UPDATE: I also attempted the challenge videos. Output videos can be found [here](./test_videos/challenge_video_1_with_lanes.mp4), [here](./test_videos/challenge_video_2_with_lanes.mp4) and [here](./test_videos/harder_challenge_video_with_lanes.mp4). I was sadly only successful on challenge_video_1_with_lanes.mp4 :(
+
 ---
 
 ### Discussion
@@ -144,6 +161,8 @@ Here's a [link to my video result](./project_video_with_lanes.mp4)
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 My pipeline will likely fail at sharp turns and when driving over light-brown and shady patches of road. I think this is most likely a consequence of the color and gradient thresholding combinations that I have chosen. One of the key issues that I had is that any relatively sharp turn would cause the right fit line to immediately jump to the left because there's not enough white line segments being detected. This resulted in playing around with different values for the margin parameter of the convolution search because that dictates how much flexibility the line detector has in shifting subsequent boxes during vertical sliding search. 
+
+UPDATE: Because of my updates for color and gradient thresholding, my pipeline now performs very well on the project video. However, one issue is that around the 28-30 second mark, my pipeline mistakes the black car that enters into the frame as part of the lane. When I stepped through the frame data around this point, it was quickly apparent that the car would be identified as a starting centroid location. I think this issue generalizes to when any white object (or any object that is detected as white) other than a car is identified. When I analyzed the warped thresholded images, I noticed that this was definitely the case. I attempted to restrict the centroid search space at the bottom of the image to not exceed a zone greater than 100 + the midpoint of the image in the x-axis. This, however, caused additional issues with other parts of the video, particularly around sharper turns. One thing that I think might fix this situation is to implement a way to update warp perspectives in real-time. Right now, I am comparing centroids that are recorded for each line detection per frame. Instead, I think it'd be a really cool approach to also implement a sanity check based on warped images differences too. If a warped image did not fall into a particular threshold of similarity, then a new set of points would have to be used in order to generate a more accurate region of interest. 
 
 What did work, however, is the convolution search approach. I definitely preferred this technique rather than traditional sliding search mostly of curious for alternative applications of convolutions. I definitely enjoyed seeing these in action, and more than anything it solidified my understanding of convolutions as just being really powerful mathematical operators. 
 
