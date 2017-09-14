@@ -1,10 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
-**Advanced Lane Finding Project**
+# Advanced Lane Finding Project
 
 The goals / steps of this project are the following:
 
@@ -133,7 +127,7 @@ Once I calculate these values, I then display them on directly onto the video.
 
 I implemented this in the function called single_image_convolution_search() in the cell "5. Lane Finding: Sliding Window Search w/ Convolutions" on line 44. 
 
-![alt text][image8]
+![alt text][image7]
 
 ---
 
