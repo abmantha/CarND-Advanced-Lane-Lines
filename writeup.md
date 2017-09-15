@@ -20,6 +20,9 @@ The goals / steps of this project are the following:
 [image5]: ./output_images/example_undistorted_warped_test_image_single.png
 [image6]: ./output_images/test_image_0_detected_lanes.png
 [image7]: ./output_images/detected_lanes.png
+[image8]: ./output_images/reviewer-notes-1.png
+[image9]: ./output_images/reviewer-notes-2.png
+[image10]: ./output_images/reviewer-notes-3.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -28,6 +31,12 @@ The goals / steps of this project are the following:
 Woohoo :)
 
 ---
+
+__UPDATE 3__: I have successfully made all recommendations identified by my second submission reviewer. Here are images of his review that I specifically focused and made changes to in my code: 
+
+![alt text][image8]
+![alt text][image9]
+![alt text][image10]
 
 ### Writeup / README
 
@@ -98,7 +107,9 @@ In the next code cell, "Identify source and destination points on test images," 
 
 I hardcoded the source and destination points, and came upon my final choice via trial and error. Below is the snippet of code that I used to select both source and destination points. 
 
-__UPDATE__ 2:
+__UPDATE 3__:
+Updating the source and destination for the perspective transform significantly improve my pipeline. I now had an appropriate bird's-eye view of the lanes and was able to easily detect both yellow and white lane markings.
+
 ```python
     src = np.float32([(570,470), (750,470), (200,680), (1157,680)])
     dest = np.float32([(250,0), (1100,0), (250,720), (1100,720)])
@@ -133,7 +144,7 @@ I introduce a margin value that allows the algorithm to account for slight devia
 
 In the same cell of the notebook as above, I also calculate the radius of curvature and the position of the vehicle with respect to center. I accomplish this with 2 methods called radius_of_curvature() and distace_from_center(). The implementations for both methods are found in the code cell "Measuring Radius of Curvature." 
 
-To calculate radius of curvature, I simply transformed the converted left and right polynomial fits to be in meters instead of pixels using a conversion of y_meters_per_pixel = 30 / 720 and x_meters_per_pixel = 3.7 / 700 with a basic formula that relates radius of curvature to derivatives of position. 
+To calculate radius of curvature, I simply transformed the converted left and right polynomial fits to be in meters instead of pixels using a conversion of y_meters_per_pixel = 30 / 720 and x_meters_per_pixel = 3.7 / 800 with a basic formula that relates radius of curvature to derivatives of position.
 
 To calculate distance from center, I simply took the difference of the center of the image and the difference of both left and right polynomial fits. Finally, I converted this difference from pixels to meters using the same x_meters_per_pixel constant above. 
 
@@ -163,7 +174,9 @@ UPDATE: I also attempted the challenge videos. Output videos can be found [here]
 
 My pipeline will likely fail at sharp turns and when driving over light-brown and shady patches of road. I think this is most likely a consequence of the color and gradient thresholding combinations that I have chosen. One of the key issues that I had is that any relatively sharp turn would cause the right fit line to immediately jump to the left because there's not enough white line segments being detected. This resulted in playing around with different values for the margin parameter of the convolution search because that dictates how much flexibility the line detector has in shifting subsequent boxes during vertical sliding search. 
 
-__UPDATE__: Because of my updates for color and gradient thresholding, my pipeline now performs very well on the project video. However, one issue is that around the 28-30 second mark, my pipeline mistakes the black car that enters into the frame as part of the lane. When I stepped through the frame data around this point, it was quickly apparent that the car would be identified as a starting centroid location. I think this issue generalizes to when any white object (or any object that is detected as white) other than a car is identified. When I analyzed the warped thresholded images, I noticed that this was definitely the case. I attempted to restrict the centroid search space at the bottom of the image to not exceed a zone greater than 100 + the midpoint of the image in the x-axis. This, however, caused additional issues with other parts of the video, particularly around sharper turns. One thing that I think might fix this situation is to implement a way to update warp perspectives in real-time. Right now, I am comparing centroids that are recorded for each line detection per frame. Instead, I think it'd be a really cool approach to also implement a sanity check based on warped images differences too. If a warped image did not fall into a particular threshold of similarity, then a new set of points would have to be used in order to generate a more accurate region of interest. 
+__UPDATE 2__: Because of my updates for color and gradient thresholding, my pipeline now performs very well on the project video. However, one issue is that around the 28-30 second mark, my pipeline mistakes the black car that enters into the frame as part of the lane. When I stepped through the frame data around this point, it was quickly apparent that the car would be identified as a starting centroid location. I think this issue generalizes to when any white object (or any object that is detected as white) other than a car is identified. When I analyzed the warped thresholded images, I noticed that this was definitely the case. I attempted to restrict the centroid search space at the bottom of the image to not exceed a zone greater than 100 + the midpoint of the image in the x-axis. This, however, caused additional issues with other parts of the video, particularly around sharper turns. One thing that I think might fix this situation is to implement a way to update warp perspectives in real-time. Right now, I am comparing centroids that are recorded for each line detection per frame. Instead, I think it'd be a really cool approach to also implement a sanity check based on warped images differences too. If a warped image did not fall into a particular threshold of similarity, then a new set of points would have to be used in order to generate a more accurate region of interest. 
+
+__UPDATE 3__: I believe significant updates to my work pipeline. Now, my pipeline is consistently able to detect the white and yellow lanes without succumbing to noise such as shadows, gray pavements or vehicles in adjacent lanes. I think there's still for improvement however. I did impelement a basic sanity check that simply compared previous and current polynomial detections, so that new detections would only be accepted if they were within a reasonable bound. However, I did have some difficulty extending this. This is certainly something that I would like to return to tackling in the future.
 
 What did work, however, is the convolution search approach. I definitely preferred this technique rather than traditional sliding search mostly of curious for alternative applications of convolutions. I definitely enjoyed seeing these in action, and more than anything it solidified my understanding of convolutions as just being really powerful mathematical operators. 
 
