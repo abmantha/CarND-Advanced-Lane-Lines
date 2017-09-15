@@ -98,20 +98,20 @@ In the next code cell, "Identify source and destination points on test images," 
 
 I hardcoded the source and destination points, and came upon my final choice via trial and error. Below is the snippet of code that I used to select both source and destination points. 
 
-__UPDATE__:
+__UPDATE__ 2:
 ```python
-src = np.float32([(545,470), (740,470), (200,680), (1050,680)])
-dest = np.float32([(250,0), (900,0), (900,0), (900,720)])
+    src = np.float32([(570,470), (750,470), (200,680), (1157,680)])
+    dest = np.float32([(250,0), (1100,0), (250,720), (1100,720)])
 ```
 
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 545, 470      | 250, 0        | 
-| 740, 470      | 900, 0        |
-| 200, 680      | 900, 0        |
-| 1050, 680     | 900, 720      |
+| 570, 470      | 250, 0        | 
+| 750, 470      | 1100, 0       |
+| 200, 680      | 250, 0        |
+| 1157, 680     | 1100, 720     |
 
 I verified that my perspective transform was working as expected by drawing 4 green dots on the regions of interest. The 4 dots (green, blue, orange and red) allow me to easily check that the endpoints of the region of interest (source) get appropriately mapped to the region that I want (destination). (Please note: dots were removed for submission).
 
